@@ -231,9 +231,6 @@ rclcpp::QoS qos_from_params(XmlRpc::XmlRpcValue qos_params)
 
 int main(int argc, char * argv[])
 {
-  // ROS 1 node
-  ros::init(argc, argv, "ros_bridge");
-  ros::NodeHandle ros1_node;
 
   // ROS 2 node
   rclcpp::init(argc, argv);
@@ -243,6 +240,20 @@ int main(int argc, char * argv[])
   std::list<ros1_bridge::ServiceBridge1to2> service_bridges_1_to_2;
   std::list<ros1_bridge::ServiceBridge2to1> service_bridges_2_to_1;
 
+  if (argc == 4) {
+    std::string argv_s = argv[argc-1];
+
+    std::string delimiter = "__node:=";
+    argv_s.erase(0, delimiter.length());
+    argv_s.insert(0, "__name:=");
+    strcpy(argv[0], argv_s.c_str());
+    argc = 1;
+  }
+
+  // ROS 1 node
+  ros::init(argc, argv, "ros_bridge");
+  ros::NodeHandle ros1_node;
+  
   // bridge all topics listed in a ROS 1 parameter
   // the topics parameter needs to be an array
   // and each item needs to be a dictionary with the following keys;
